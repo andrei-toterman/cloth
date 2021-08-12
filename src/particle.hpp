@@ -7,11 +7,11 @@
 struct Particle {
     explicit Particle(glm::vec3 _position);
 
-    void add_force(glm::vec3 force);
-
-    void update(const State& state);
+    void update();
 
     void move(glm::vec3 offset);
+
+    void add_force(glm::vec3 force);
 
     // adds a normal vector to the accumulated normal
     void add_normal(glm::vec3 normal);
@@ -23,4 +23,8 @@ struct Particle {
     glm::vec3 acceleration;
     // the normal of the particle, which will be computed using its neighbours' normals. it will be normalized only when needed
     glm::vec3 accumulated_normal;
+
+    // used in Verlet integration
+    static constexpr float damping         = 0.01f;
+    static constexpr float time_step_size2 = 0.5f * 0.5f;
 };

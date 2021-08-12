@@ -2,10 +2,10 @@
 
 // basic Phong shader
 
-uniform vec4 light_ambient;
-uniform vec4 light_diffuse;
-uniform vec4 light_specular;
-uniform float shininess;
+const vec4 light_ambient = vec4(vec3(0.5f), 1.0f);
+const vec4 light_diffuse = vec4(1.0f);
+const vec4 light_specular = vec4(1.0f);
+const float shininess = 50.0f;
 
 in V2F {
     vec3 position;

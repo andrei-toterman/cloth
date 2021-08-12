@@ -2,14 +2,13 @@
 
 #include <array>
 
-struct State {
-    float        damping{ 0.01f };
-    float        time_step_size2{ 0.5f * 0.5f };
-    unsigned int constraint_iterations{ 30 };
-
+// I don't want an enum class since I will use those as indices, so a namespace will do the job
+namespace Keys {
     enum {
         q, e, a, d, w, s, space, keys_n
     };
+}
 
-    std::array<bool, keys_n> keys{};
+struct State {
+    std::array<bool, Keys::keys_n> keys{};
 };

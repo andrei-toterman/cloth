@@ -7,8 +7,8 @@
 #include "cloth.hpp"
 #include "shader.hpp"
 
-const int WIDTH{ 1280 };
-const int HEIGHT{ 720 };
+constexpr int WIDTH  = 1280;
+constexpr int HEIGHT = 720;
 
 void key_callback(GLFWwindow* window, int key, int, int action, int);
 
@@ -21,7 +21,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    auto window{ glfwCreateWindow(WIDTH, HEIGHT, "Cloth", nullptr, nullptr) };
+    auto window = glfwCreateWindow(WIDTH, HEIGHT, "Cloth", nullptr, nullptr);
     if (!window) {
         std::cerr << "failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -39,21 +39,16 @@ int main() {
     glfwSetKeyCallback(window, key_callback);
 
     Cloth cloth{{ -7.5f, 5.0f, 0.0f }, 15, 10, 75, 50 };
-    Ball  ball{{ 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, 2.0f };
+    Ball  ball{{ 0.0f, 0.0f, 1.0f }, 2.0f, { 0.0f, 1.0f, 0.0f }};
 
     Shader shader{ "shaders/vertex.glsl", "shaders/fragment.glsl" };
     glUseProgram(shader.id);
 
     // the camera doesn't move, so we can compute the matrices outside the loop
-    glm::mat4 proj{ glm::perspective(glm::radians(45.0f), (float) WIDTH / HEIGHT, 0.1f, 1000.0f) };
-    glm::mat4 view{ glm::lookAt(glm::vec3{ -10.0f, 0.0f, 20.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }) };
+    auto proj = glm::perspective(glm::radians(45.0f), (float) WIDTH / HEIGHT, 0.1f, 1000.0f);
+    auto view = glm::lookAt(glm::vec3{ -10.0f, 0.0f, 20.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
 
-    // set light properties
     shader.set("light_position", view * glm::vec4{ 0.0f, 5.0f, 20.0f, 1.0f });
-    shader.set("light_ambient", { 0.5f, 0.5f, 0.5f, 1.0f });
-    shader.set("light_diffuse", { 1.0f, 1.0f, 1.0f, 1.0f });
-    shader.set("light_specular", { 1.0f, 1.0f, 1.0f, 1.0f });
-    shader.set("shininess", 50.0f);
 
     glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window)) {
@@ -63,18 +58,18 @@ int main() {
         // update the ball
         ball.update(state);
 
-        // add some gravity to the cloth, collide with the ball and update the cloth
-        cloth.add_force(state.time_step_size2 * glm::vec3{ 0.0f, -0.2f, 0.0f });
+        // add some arbitrary gravity to the cloth, collide with the ball and update the cloth
+        cloth.add_force({ 0.0f, -0.09f, 0.0f });
         cloth.ball_collision(ball);
-        if (state.keys[State::space]) {
+        if (state.keys[Keys::space]) {
             cloth.add_wind({ 0.0f, 0.0f, -0.01f });
         }
-        cloth.update(state);
+        cloth.update();
 
         // draw the ball
         glm::mat4 model{ 1.0f };
         model = glm::translate(model, ball.position);
-        auto mv{ view * model };
+        auto mv = view * model;
         shader.set("mv", mv);
         shader.set("mvp", proj * mv);
         shader.set("normal_matrix", glm::transpose(glm::inverse(mv)));
@@ -99,7 +94,7 @@ int main() {
 }
 
 void key_callback(GLFWwindow* window, int key, int, int action, int) {
-    auto state{ static_cast<State*>(glfwGetWindowUserPointer(window)) };
+    auto state = (State*) glfwGetWindowUserPointer(window);
 
     // if Escape is pressed, exit
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
@@ -107,23 +102,23 @@ void key_callback(GLFWwindow* window, int key, int, int action, int) {
     }
     // check if a key is either pressed or released
     if (action == GLFW_PRESS || action == GLFW_RELEASE) {
-        // set whether is is pressed or released
-        bool pressed{ action == GLFW_PRESS };
+        // set whether it is pressed or released
+        bool pressed = action == GLFW_PRESS;
         // update each key as either pressed or not pressed
         switch (key) {
-            case GLFW_KEY_W:state->keys[State::w] = pressed;
+            case GLFW_KEY_W:state->keys[Keys::w] = pressed;
                 break;
-            case GLFW_KEY_A:state->keys[State::a] = pressed;
+            case GLFW_KEY_A:state->keys[Keys::a] = pressed;
                 break;
-            case GLFW_KEY_S:state->keys[State::s] = pressed;
+            case GLFW_KEY_S:state->keys[Keys::s] = pressed;
                 break;
-            case GLFW_KEY_D:state->keys[State::d] = pressed;
+            case GLFW_KEY_D:state->keys[Keys::d] = pressed;
                 break;
-            case GLFW_KEY_E:state->keys[State::q] = pressed;
+            case GLFW_KEY_E:state->keys[Keys::e] = pressed;
                 break;
-            case GLFW_KEY_Q:state->keys[State::e] = pressed;
+            case GLFW_KEY_Q:state->keys[Keys::q] = pressed;
                 break;
-            case GLFW_KEY_SPACE:state->keys[State::space] = pressed;
+            case GLFW_KEY_SPACE:state->keys[Keys::space] = pressed;
                 break;
             default: break;
         }

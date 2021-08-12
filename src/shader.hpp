@@ -10,8 +10,6 @@ struct Shader {
 
     Shader(const char* vertex_shader_path, const char* fragment_shader_path);
 
-    static std::string read_shader_source(const char* path);
-
     static GLuint compile_shader(const char* path, GLenum type);
 
     // convenience functions for setting uniforms
@@ -19,6 +17,4 @@ struct Shader {
     void set(const char* name, glm::mat4 mat) const;
 
     void set(const char* name, glm::vec4 vec) const;
-
-    void set(const char* name, float value) const;
 };

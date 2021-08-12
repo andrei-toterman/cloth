@@ -2,34 +2,32 @@
 
 #include <glm/gtc/constants.hpp>
 
-Ball::Ball(glm::vec3 _position, glm::vec3 _color, float _radius) :
-        position{ _position }, radius{ _radius }, color{ _color } {
-    const auto precision{ 48 };
-    vertices.reserve((precision + 1) * (precision + 1));
-    indices.reserve(precision * precision * 6);
+Ball::Ball(glm::vec3 _position, float _radius, glm::vec3 color) : position{ _position }, radius{ _radius } {
+    vertices.reserve((resolution + 1) * (resolution + 1));
+    indices.reserve(resolution * resolution * 6);
 
     // create a ball using spherical coordinates
-    for (auto i{ 0 }; i <= precision; i++) {
-        auto      phi{ glm::pi<float>() * i / precision };
-        for (auto j{ 0 }; j <= precision; j++) {
-            auto theta{ glm::pi<float>() * 2.0f * j / precision };
-            auto x{ -glm::cos(theta) * glm::sin(phi) };
-            auto y{ glm::cos(phi) };
-            auto z{ glm::sin(theta) * glm::sin(phi) };
-            // make the actual radius of the vertices a little lower, it interacts a little nicer with the cloth
+    for (auto i = 0; i <= resolution; i++) {
+        auto      phi = glm::pi<float>() * i / resolution;
+        for (auto j   = 0; j <= resolution; j++) {
+            auto theta = glm::pi<float>() * 2.0f * j / resolution;
+            auto x     = -glm::cos(theta) * glm::sin(phi);
+            auto y     = glm::cos(phi);
+            auto z     = glm::sin(theta) * glm::sin(phi);
+            // make the rendered _radius of the vertices a little lower, so there is less chance of it clipping through the cloth
             vertices.push_back({ radius * 0.8f * glm::vec3{ x, y, z }, { x, y, z }, color });
 
             // see cloth explanation
-            if (i == precision || j == precision) {
+            if (i == resolution || j == resolution) {
                 continue;
             }
 
-            indices.push_back(i * (precision + 1) + j);
-            indices.push_back(i * (precision + 1) + j + 1);
-            indices.push_back((i + 1) * (precision + 1) + j);
-            indices.push_back(i * (precision + 1) + j + 1);
-            indices.push_back((i + 1) * (precision + 1) + j + 1);
-            indices.push_back((i + 1) * (precision + 1) + j);
+            indices.push_back(i * (resolution + 1) + j);
+            indices.push_back(i * (resolution + 1) + j + 1);
+            indices.push_back((i + 1) * (resolution + 1) + j);
+            indices.push_back(i * (resolution + 1) + j + 1);
+            indices.push_back((i + 1) * (resolution + 1) + j + 1);
+            indices.push_back((i + 1) * (resolution + 1) + j);
         }
     }
 
@@ -57,20 +55,18 @@ Ball::Ball(glm::vec3 _position, glm::vec3 _color, float _radius) :
 }
 
 void Ball::update(const State& state) {
-    // technically this doesn't make sense but it's a good enough velocity for the ball
-    auto      velocity{ state.time_step_size2 };
     // direction vectors
     glm::vec3 front{ 0.0f, 0.0f, -1.0f };
     glm::vec3 right{ 1.0f, 0.0f, 0.0f };
     glm::vec3 up{ 0.0f, 1.0f, 0.0f };
     // check which keys are pressed and update the ball position accordingly
-    // each key is a bool, so it can be converted to 1 or 0, so if the key is not pressed, it's basically nullifying the move
-    position += (float) state.keys[State::w] * velocity * front;
-    position -= (float) state.keys[State::a] * velocity * right;
-    position -= (float) state.keys[State::s] * velocity * front;
-    position += (float) state.keys[State::d] * velocity * right;
-    position += (float) state.keys[State::q] * velocity * up;
-    position -= (float) state.keys[State::e] * velocity * up;
+    // each key is a bool, equivalent to 1 or 0, so if the key is not pressed, it's basically nullifying the move
+    position += state.keys[Keys::w] * velocity * front;
+    position -= state.keys[Keys::s] * velocity * front;
+    position += state.keys[Keys::d] * velocity * right;
+    position -= state.keys[Keys::a] * velocity * right;
+    position += state.keys[Keys::e] * velocity * up;
+    position -= state.keys[Keys::q] * velocity * up;
 }
 
 void Ball::draw() const {
