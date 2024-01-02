@@ -1,5 +1,5 @@
 ## cloth simulation
-reimplementation of this https://viscomp.alexandra.dk/?p=147 article, using the programmable OpenGL pipeline
+reimplementation of [this article](https://viscomp.alexandra.dk/index2fa7.html), using the programmable OpenGL pipeline
 
 ### dependencies
 - OpenGL
